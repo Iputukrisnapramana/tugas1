@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+
+    <title>Piece Of Wiwit</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            color: white;
+            background-color: #000000;
+        }
+        
+        /* HEADER */
+        .header {
+            width: 100%;
+            min-height: 800px; /* Supaya fleksibel */
+            background: url('asset/foto wiwit utama (1).png') no-repeat center center;
+            background-size: cover;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: center;
+            padding: 4rem;
+            text-shadow: 1px 1px 3px rgba(214, 203, 203, 0.544);
+        }
+        .header h1 {
+            font-size: 3rem;
+            font-family: 'kugile', serif;
+            font-weight: 100;
+        }
+        .header h1 span {
+            font-family: 'matt', sans-serif;
+            font-weight: 100;
+        }
+        .header p {
+            font-size: 18px;
+            font-family: serif;
+            max-width: 600px;
+            margin-top: 0.5rem;
+        }
+
+        /* DIV BARU DI BAWAH HEADER */
+        .content {
+            background: rgb(3, 3, 3);
+            color: black;
+            padding: 3rem 2rem;
+            text-align: center;
+        }
+        .content h2 {
+            font-family: 'kugile', serif;
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            font-weight: 100;
+        }
+        .content h2 span {
+            font-family: 'matt', sans-serif;
+            font-weight: 100;
+        }
+        .content p {
+            font-size: 2rem;
+            max-width: 700px;
+            margin: 0 auto;
+
+        }
+        .new-section{
+            background: rgb(3, 3, 3);
+            color: black;
+            padding: 3rem 2rem;
+            text-align: center;
+            display: none; 
+        }
+
+        /* RESPONSIVE DESIGN AGAR TIDAK TERPOTONG DI HP */
+        @media (max-width: 768px) {
+            .header {
+                min-height: 275px;
+                min-width: auto;
+                background-size: contain; /* Supaya tidak terpotong */
+                padding: 2rem;
+                align-items: left;
+                text-align: left;
+            }
+            .header h1 {
+                font-size: 1.5rem; /* Mengecilkan ukuran h1 */
+                font-weight: 100;
+            }
+            .header p {
+                font-size: 10px; /* Mengecilkan ukuran paragraf */
+                max-width: 200px;
+            }
+            .content{
+                height: 700px;
+                text-align: center;
+            }
+            .content h2 {
+                font-size: 1.2rem;
+            }
+            .content h2 span{
+                font-size: 2.2rem;
+            }
+            .content p {
+                font-size: 1rem;
+            }
+            .content p span{
+                font-size: 1.2rem;
+                font-weight: bold;
+            }
+            .new-section{
+                height: 700px;
+                text-align: center;
+            }
+            .new-section h1{
+                font-size: 1.2rem;
+            }
+            .new-section p span{
+                font-size: 1.2rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 1rem; /* Lebih kecil lagi di HP kecil */
+            }
+            .header p {
+                font-size: 10px;
+            }
+            .content h2 {
+                font-size: 1.3rem;
+            }
+            .content p {
+                font-size: 10px;
+            }
+        }
+
+        /* IMPORT FONT */
+        @font-face {
+            font-family: 'kugile'; 
+            src: url('asset/Kugile_Demo.ttf') format('truetype');
+        }
+        @font-face {
+            font-family: 'matt';  
+            src: url('asset/Matt Rostine.ttf') format('truetype');
+        }
+        .mute-btn {
+            display: none; /* Awalnya tersembunyi */
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: linear-gradient(45deg, #e1ce639d, #7f5e229a);
+            box-shadow: 2px 2px 10px rgba(255, 215, 0, 0.5);
+            border: none;
+            padding: 10px;
+            font-size: 14px;
+            font-weight: bold;
+            color: black;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.3);
+        }
+        
+        #image-container, #new-lagi {
+            display: none; 
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+            margin-top: 10px;
+        }
+        #new-lagi{
+            background: rgb(3, 3, 3);
+            color: rgb(255, 255, 255);
+            padding: 3rem 2rem;
+            text-align: center;
+            display: none;
+        }
+        #new-lagi p span{
+            font-size: 1.3rem;
+        }
+        .gallery-container {
+            width: 90%;
+            margin: auto;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0);
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+
+        .gallery-item {
+            width: 300px;
+            height: 300px;
+            overflow: hidden;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+        .gallery-item:hover {
+            transform: scale(1.1);
+        }
+
+        /* Modal untuk gambar besar */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .modal img {
+            max-width: 90%;
+            max-height: 80%;
+            border-radius: 10px;
+            box-shadow: 0px 4px 10px rgba(255, 255, 255, 0.3);
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            font-size: 30px;
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .close-btn:hover {
+            color: red;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+
+        .countup-container {
+            background: #00000000;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+            display: inline-block;
+        }
+
+        .countup-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .countup-box {
+            display: inline-block;
+            background: linear-gradient(45deg, #e1ce63, #7f5e22);
+            color: white;
+            padding: 5px 0px;
+            margin: 5px;
+            border-radius: 8px;
+            font-size: 20px;
+            font-weight: 100;
+            width: 100px;
+            font-family: serif;
+            box-shadow: 2px 2px 10px rgba(255, 215, 0, 0.5);
+               
+        }
+
+        .label {
+            display: block;
+            font-size: 14px;
+            font-weight: normal;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- HEADER -->
+    <div class="header">
+        <h1>Piece <span>Of</span> Wiwit</h1>
+        <p><em>Every step on this journey is a worthwhile story. 
+            In the last year of your teenage years, let the memories 
+            become beautiful, hopes grow bigger, and dreams move closer ~</em></p>
+    </div>
+
+    <!-- DIV BARU DI BAWAH HEADER -->
+    <div class="content">
+        <h2 style="color: white;">Siapa <Span>Aku?</Span></h2>
+        <img style=" width: 15rem;" src="asset/polaroid kecil.png" alt="wiwit">
+        <p style="color: white; font-family: serif;" >" <br>Hallo Kakak!!,<br> Kenalin namaku Ni Ketut Wiwit Widiantari, panggilannya <span>Wiwit Cantik.</span> Aku lahir Senin, 20 Maret 2006, yaa walaupun senin itu hari yang tidak disukai banyak orang tapi aku disukai banyak orang kok hihihihi
+        <br><br>
+    oh iyaa, tepat hari ini aku ulang tahun lho kak...,<br>
+ucapin selamat dong </p>
+<button class="confetti-btn"
+style="background: linear-gradient(45deg, #e1ce63, #7f5e22); 
+               border: none; 
+               padding: 5px 10px; 
+               font-size: 14px; 
+               font-weight: bold; 
+               color: white; 
+               border-radius: 8px; 
+               cursor: pointer; 
+               box-shadow: 2px 2px 10px rgba(255, 215, 0, 0.5);
+               font-family: serif;
+               margin-top: 10px;">
+    Ucapin
+</button>
+
+<button id="mute-btn" class="mute-btn">🔇</button>
+<audio id="music" src="asset/Feast - Nina (Official Lyric Video).mp3"></audio>
+    </div>
+
+    <div id="new-section" class="new-section">
+        <h2 style="color: white; font-family: serif; margin-bottom: 20px; margin-top: -20px; ">Yey maaci Kak..</h2>
+        <p style="color: white; font-family: serif;">
+            Oh iyaa aku lupa kak, <br>
+            Btw Kakak ulang tahun kapan?, <br>
+            inget kapan pertama kali ulang tahun kakak dirayain?,<br>
+            kalo dirayain biasanya kakak sama siapa?, <br>
+            pasti seru banget yah dirayain sama orang-orang yang kita sayang? <br>
+
+            <br>
+            hihihi.., kalo aku sih udah dirayain sejak kecil sama orang yang sayang sama aku. <br>
+            <br>
+            <span>kakak mau liat ga bahagianya aku waktu itu?</span> 
+        </p>
+        <button class="clihat"  onclick="showImagesAndDiv()"
+style="background: linear-gradient(45deg, #e1ce63, #7f5e22); 
+border: none; 
+padding: 5px 10px; 
+font-size: 14px; 
+font-weight: bold; 
+color: white; 
+border-radius: 8px; 
+cursor: pointer; 
+box-shadow: 2px 2px 10px rgba(255, 215, 0, 0.5);
+font-family: serif;
+margin-top: 10px;">
+    Lihat
+</button>
+<div id="image-container" style="display: none; margin-top: 10px;  ">
+    <img src="asset/fotoultah1.png" alt="Gambar 1" style="width: 200px; height: auto; margin-right: 10px;">
+    <img src="asset/foto ultah2.png" alt="Gambar 2" style="width: 200px; height: auto;">
+</div>
+    </div>
+
+
+    <div id="new-lagi">
+        <h2 style="font-family: serif;margin-left: 4rem; margin-right: 4rem;"><em>Dulu, di hari itu...</em></h2>
+        <p style="font-family: serif;margin-left: 4rem; margin-right: 4rem;" >Aku hanyalah seorang anak kecil yang tak banyak mengerti tentang dunia. Tapi satu hal yang kupahami dengan jelas <br>
+            <span><em>aku dicintai</em></span></p>
+            <div id="image" style=" margin-top: 10px; padding: 0 !important; box-sizing: content-box !important;">
+                <img src="asset/fotokecil.png" alt="Gambar 1" style="width: 200px; height: auto; margin-right: 10px;">
+                <img src="asset/fotokecil2.png" alt="Gambar 2" style="width: 200px; height: auto;">
+            </div>
+
+            <p style="font-family: serif; margin-top: 20px; margin-left: 4rem; margin-right: 4rem;" >Tanganku yang mungil menggenggam erat tangan mereka yang selalu ada. 
+                Suara tawa mengisi ruangan, dan di depan mataku, lilin-lilin 
+                kecil berpendar, seolah ikut bersorak merayakan keberadaanku. <br>
+                Ada suara lembut yang berkata, <em>"Selamat ulang tahun, Adik,"</em> dengan tatapan penuh kasih. Pelukan itu begitu hangat, seakan dunia ini takkan pernah menakutkan. Kue sederhana yang tersaji di meja terasa lebih manis karena tangan-tangan yang membuatnya dipenuhi cinta.</p>
+                <div id="image" style=" margin-top: 10px; align-items: center;">
+                    <img src="asset/fotokecil3.png" alt="Gambar 1" style="width: 300px; height: auto; margin-right: 10px;">
+                    
+                </div>
+
+<h1 style="font-family: serif; font-size: 1.3rem; margin-top: 6rem; margin-left: 4rem; margin-right: 4rem;"><em>Perjalanan Waktu</em></h1>
+<p style="font-family: serif; margin-top: 20px; margin-left: 4rem; margin-right: 4rem;">Kini, aku tumbuh besar. Waktu telah membawa semua ke 
+    tempat yang berbeda. Jarak dan kesibukan hidup perlahan memisahkan, 
+    membuat momen seperti dulu terasa semakin sulit untuk diulang. Mungkin sulit akan ada lagi perayaan yang sama, 
+    tak ada lagi tangan-tangan yang menyuapkan potongan kue dengan penuh kasih seperti dulu. Tapi satu hal yang tak berubah</p>
+<p style="font-family: serif; margin-top: 10px; font-size: 1.2rem; margin-left: 4rem; margin-right: 4rem;">~kenangan itu tetap hidup~</p>
+<div id="image" style=" margin-top: 10px; align-items: center; margin-top: 10rem;">
+    <img src="asset/fotobajuunud.png" alt="Gambar 1" style="width: 300px; height: auto; margin-right: 10px;">
+    
+</div>
+<p style="font-family: serif; margin-top: 10px; font-size: 1rem; margin-left: 4rem; margin-right: 4rem;" > 
+    Namun sekarang, aku tak lagi hanya anak kecil yang berlari menuju pelukan mereka. Aku punya mimpi yang besar untuk diraih.
+    <br>
+    <br>
+    Aku belajar bahwa hidup tak selalu tentang dirayakan, tapi tentang bertahan. Tentang melangkah meski terkadang sendirian, tentang bangkit meski pernah terjatuh. Aku mengerti bahwa waktu tak bisa diputar kembali, tapi kenangan tetap bisa menjadi cahaya di tengah gelapnya perjalanan.
+    <br>
+    <br>
+    Aku tumbuh, bukan hanya menjadi lebih tua, tetapi menjadi lebih kuat. Aku belajar dari luka, dari rindu yang tak selalu bisa terobati, dan dari kehilangan yang mengajarkan betapa berharganya setiap kebersamaan.
+</p>
+<h1 style="font-family: serif; font-size: 1.3rem; margin-top: 6rem; margin-left: 4rem; margin-right: 4rem;"><em>Aku Adalah dua insan</em></h1>    
+<div id="image" style=" margin-top: 10px; align-items: center; margin-top: 1.3rem;">
+    <img src="asset/akudia.png" alt="Gambar 1" style="width: 300px; height: auto; margin-right: 10px;">
+<p style="font-family: serif; margin-top: 10px; font-size: 1rem; margin-left: 4rem; margin-right: 4rem;">
+    kali ini, tumbuhku tidak sendiri. Ada seseorang di sampingku <br>
+    laki-laki yang berjalan bersamaku, menggenggam tanganku dengan keyakinan yang sama. Kami punya mimpi yang besar, cita-cita yang sempat kami perjuangkan namun belum tercapai. 
+</p>
+
+<div class="gallery-container" style="margin: 10px;">
+    <div class="gallery-item" onclick="openModal('asset/1.jpg')"><img src="asset/1.jpg" alt="Foto 1"></div>
+    <div class="gallery-item" onclick="openModal('asset/2.jpg')"><img src="asset/2.jpg" alt="Foto 2"></div>
+    <div class="gallery-item" onclick="openModal('asset/3.jpg')"><img src="asset/3.jpg" alt="Foto 3"></div>
+    <div class="gallery-item" onclick="openModal('asset/4.jpg')"><img src="asset/4.jpg" alt="Foto 4"></div>
+    <div class="gallery-item" onclick="openModal('asset/5.jpg')"><img src="asset/5.jpg" alt="Foto 5"></div>
+    <div class="gallery-item" onclick="openModal('asset/6.jpg')"><img src="asset/6.jpg" alt="Foto 6"></div>
+</div>
+<div id="imageModal" class="modal">
+    <span class="close-btn" onclick="closeModal()">&times;</span>
+    <img id="modalImage" src="">
+</div>
+</div>
+
+<p style="font-family: serif; margin-top: 5rem; font-size: 1rem; margin-left: 4rem; margin-right: 4rem;"> <em>SELAMA</em> </p>
+<div class="countup-container">
+   <div id="years" class="countup-box">0<span class="label">Tahun</span></div>
+        <div id="days" class="countup-box">0<span class="label">Hari</span></div>
+        <div id="hours" class="countup-box">0<span class="label">Jam</span></div>
+        <div id="minutes" class="countup-box">0<span class="label">Menit</span></div>
+        <div id="seconds" class="countup-box">0<span class="label">Detik</span></div>
+</div>
+
+<p style="font-family: serif; margin-top: 20px; font-size: 1rem; margin-left: 4rem; margin-right: 4rem;"> 
+    kami bersama, kami tertawa, bermimpi, dan berjuang berdampingan. Kami saling mengenal, menerima, dan menguatkan.
+    <br>
+    <br>
+    Namun, hidup sering kali berjalan di luar kendali. Waktu dan keadaan membawa kami pada ujian yang tidak pernah kami bayangkan
+    <br>jarak memisahkan kami.
+    <br>
+    <br>
+
+    Sekarang, aku tidak bisa lagi menoleh ke samping dan melihatnya ada di sana. 
+    Tidak ada lagi tangan yang bisa kugenggam saat aku lelah, tidak ada lagi bahunya yang selalu menjadi tempat terbaik untuk bersandar. Kami terpisah oleh ruang yang begitu jauh, oleh keadaan yang memaksa kami untuk belajar bertahan dengan cara yang berbeda.
+<br>
+<br>
+Kadang aku bertanya, apakah dia juga merasakan rindu yang sama? Apakah hatinya juga sesak ketika tak bisa ada di sisiku?
+
+<br>
+<br>
+Aku percaya, sejauh apa pun kami terpisah, hatiku akan selalu menemukannya.
+<div id="image" style=" margin-top: 10px; align-items: center; margin-top: 5rem;">
+    <img src="asset/motor.png" alt="Gambar 1" style="width: 300px; height: auto; margin-right: 10px;">
+</div>
+
+<h1 style="font-family: 'kugile'; font-size: 1.3rem; margin-top: 6rem; margin-left: 4rem; margin-right: 4rem;">seandainya..</h1>
+<p style="font-family: serif; margin-top: 20px; font-size: 1rem; margin-left: 4rem; margin-right: 4rem;">kami tak terpisah oleh jarak, kami tak terpisah waktu dan ruang, dia pasti akan datang dan menemani hari dimana aku selalu dirayakan,
+aku akan merasa dia adalah bagian dari kenangan indah itu, kalau dia bisa berucap, saat itu juga dia akan berkata
+
+</p>
+
+<p style="font-family: serif; margin-top: 20px; font-size: 1.5rem; margin-left: 4rem; margin-right: 4rem;">
+    <em><br>
+    "Selamat Ulang tahun sayang,<br>
+    yahaha tambah tua yaa.."
+    <br>
+
+    <br>
+    "saya masih disini, sama kamu, tunggu saya pulang pasti untuk kamu"
+</em>
+</p>
+
+</p>
+<div id="image" style=" margin-top: 10px; align-items: center; margin-top: 5rem;">
+    <img src="asset/terakhir.png" alt="Gambar 1" style="width: 300px; height: auto; margin-right: 10px;">
+</div>
+
+
+<p style="font-family: serif; margin-top: 10px; font-size: 1rem; margin-left: 4rem; margin-right: 4rem;">
+    Waktu terus berjalan, dan aku tak bisa berhenti, yaa aku mungkin bertambah tua. <br> Tapi jika suatu hari aku menoleh ke belakang, aku ingin tersenyum <br>karena aku pernah ada di sini, pernah sebebas angin, dan pernah dicintai tanpa syarat.
+</p>
+
+
+<p style="margin-top: 5rem; color: #817f7f; font-family: serif;"><em>to my beloved wiwit:
+    <br>
+    Happy Birthday <br>
+~krisna~</em>
+    
+</p>
+            </div>
+    
+
+
+
+    <script>
+        let isMusicPlaying = false;
+    
+        function launchConfetti() {
+            confetti({
+                particleCount: 200,
+                spread: 100,
+                origin: { y: 0.6 }
+            });
+        }
+    
+        function toggleMusic() {
+            let music = document.getElementById("music");
+            let muteBtn = document.getElementById("mute-btn");
+    
+            if (!isMusicPlaying) {
+                music.play();
+                muteBtn.style.display = "block"; // Tampilkan tombol mute
+            }
+            isMusicPlaying = true;
+        }
+    
+        function toggleMute() {
+            let music = document.getElementById("music");
+            let muteBtn = document.getElementById("mute-btn");
+    
+            if (music.muted) {
+                music.muted = false;
+                muteBtn.textContent = "🔇"; // Tampilkan icon mute
+            } else {
+                music.muted = true;
+                muteBtn.textContent = "🔊"; // Tampilkan icon unmute
+            }
+        }
+    
+        function showAndScrollToNewSection() {
+            let newSection = document.getElementById("new-section");
+            newSection.style.display = "block"; // Tampilkan div baru
+            setTimeout(() => { 
+                newSection.scrollIntoView({ behavior: "smooth" }); // Scroll ke div baru
+            }, 300); // Delay sedikit agar transisi lebih halus
+        }
+    
+        document.addEventListener("DOMContentLoaded", function() {
+            document.querySelectorAll('.confetti-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    launchConfetti();
+                    toggleMusic();
+                    showAndScrollToNewSection(); // ✅ Tambahkan pemanggilan fungsi di sini
+                });
+            });
+    
+            document.getElementById("mute-btn").addEventListener("click", toggleMute);
+        });
+        function showImages() {
+        let imageContainer = document.getElementById("image-container");
+        imageContainer.style.display = "block"; // Tampilkan gambar
+    }
+
+    function showImagesAndDiv() {
+            let imageContainer = document.getElementById("image-container");
+            let newLagi = document.getElementById("new-lagi");
+
+            // Tampilkan gambar dan div baru
+            imageContainer.style.display = "block";
+            newLagi.style.display = "block";
+
+            // Tambahkan efek fade-in
+            setTimeout(() => {
+                imageContainer.style.opacity = 1;
+                newLagi.style.opacity = 1;
+            }, 100);
+
+    }
+    function openModal(imageSrc) {
+            let modal = document.getElementById("imageModal");
+            let modalImg = document.getElementById("modalImage");
+            modal.style.display = "flex";
+            modalImg.src = imageSrc;
+        }
+
+        function closeModal() {
+            document.getElementById("imageModal").style.display = "none";
+        }
+        function updateCountUp() {
+            let startDate = new Date("2022-10-17T00:00:00"); // Tanggal mulai
+            let now = new Date(); // Waktu sekarang
+            let timeDiff = now - startDate; // Selisih waktu dalam milidetik
+
+            let seconds = Math.floor(timeDiff / 1000) % 60;
+            let minutes = Math.floor(timeDiff / (1000 * 60)) % 60;
+            let hours = Math.floor(timeDiff / (1000 * 60 * 60)) % 24;
+            let days = Math.floor(timeDiff / (1000 * 60 * 60 * 24)) % 365;
+            let years = Math.floor(timeDiff / (1000 * 60 * 60 * 24 * 365));
+
+            document.getElementById("years").innerHTML = years + '<span class="label">Tahun</span>';
+            document.getElementById("days").innerHTML = days + '<span class="label">Hari</span>';
+            document.getElementById("hours").innerHTML = hours + '<span class="label">Jam</span>';
+            document.getElementById("minutes").innerHTML = minutes + '<span class="label">Menit</span>';
+            document.getElementById("seconds").innerHTML = seconds + '<span class="label">Detik</span>';
+        }
+
+        // Update setiap detik
+        setInterval(updateCountUp, 1000);
+        updateCountUp(); // Jalankan saat halaman dibuka
+    </script>
+    
+</body>
+</html>
